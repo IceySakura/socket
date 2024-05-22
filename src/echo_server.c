@@ -18,6 +18,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <parse.h>
 
 #define ECHO_PORT 9999
 #define BUF_SIZE 4096
@@ -85,7 +86,12 @@ int main(int argc, char* argv[])
 
         while((readret = recv(client_sock, buf, BUF_SIZE, 0)) >= 1)
         {
-			
+			Request* res;
+			res = parse(buf, readret, client_sock);
+
+			printf("http_version = %s\n",res->http_version);
+			printf("http_method = %s\n",res->http_method);
+			printf("http_uri = %s\n",res->http_uri);
 
             if (send(client_sock, buf, readret, 0) != readret)
             {
