@@ -1,4 +1,4 @@
-SRC_DIR := src 
+SRC_DIR := src
 OBJ_DIR := obj
 # all src files
 SRC := $(wildcard $(SRC_DIR)/*.c)
