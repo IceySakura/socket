@@ -89,17 +89,38 @@ int main(int argc, char* argv[])
 			Request* res;
 			res = parse(buf, readret, client_sock);
 
+			/*
 			printf("http_version = %s\n",res->http_version);
 			printf("http_method = %s\n",res->http_method);
 			printf("http_uri = %s\n",res->http_uri);
+			*/
 
-            if (send(client_sock, buf, readret, 0) != readret)
-            {
-                close_socket(client_sock);
-                close_socket(sock);
-                fprintf(stderr, "Error sending to client.\n");
-                return EXIT_FAILURE;
-            }
+			if (strcmp(res->http_method, "GET") == 0 || strcmp(res->http_method, "HEAD") == 0 || strcmp(res->http_method, "POST") == 0)
+			{
+				// echo back
+				// so do nothing
+			}
+			else if(res->http_method[0] == 0)
+			{
+				// malformed
+				char response[] = "HTTP/1.1 400 Bad request\r\n\r\n";
+				memcpy(buf, response, sizeof(response));
+			}
+			else 
+			{
+				// not implemented
+				char response[] = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+				memcpy(buf, response, sizeof(response));
+			}
+
+			if (send(client_sock, buf, strlen(buf), 0) != strlen(buf))
+			{
+				close_socket(client_sock);
+				close_socket(sock);
+				fprintf(stderr, "Error sending to client.\n");
+				return EXIT_FAILURE;
+			}
+
             memset(buf, 0, BUF_SIZE);
         } 
 
