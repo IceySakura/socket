@@ -3,6 +3,7 @@
 /**
 * Given a char buffer returns the parsed request headers
 */
+
 Request * parse(char *buffer, int size, int socketFd) {
   //Differant states in the state machine
 	enum {
@@ -48,6 +49,7 @@ Request * parse(char *buffer, int size, int socketFd) {
 	}
 
 	Request *request = (Request *) malloc(sizeof(Request));
+	yyrestart(NULL);
     
 	//Valid End State
 	if (state == STATE_CRLFCRLF) {
@@ -62,8 +64,6 @@ Request * parse(char *buffer, int size, int socketFd) {
 	}
     
 	//TODO Handle Malformed Requests
-//  printf("Parsing Failed\n");
-	memset(request->http_method, 0, sizeof(request->http_method));
-	return request;
+//	printf("Parsing Failed\n");
+	return NULL;
 }
-

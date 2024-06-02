@@ -26,3 +26,4 @@ Request* parse(char *buffer, int size,int socketFd);
 // functions decalred in parser.y
 int yyparse();
 void set_parsing_options(char *buf, size_t i, Request *request);
+void yyrestart ( FILE *input_file  );
