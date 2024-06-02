@@ -18,7 +18,7 @@
 #define YPRINTF(...)
 #endif
 
-#define HEADEBUG
+//#define HEADEBUG
 #ifdef HEADEBUG
 #include <stdio.h>
 #define HPRINTF(...) printf(__VA_ARGS__)
@@ -130,11 +130,11 @@ t_dot;
  */
 token:
 allowed_char_for_token {
-	YPRINTF("token: Matched rule 1.\n");
+//	YPRINTF("token: Matched rule 1.\n");
 	snprintf($$, 8192, "%c", $1);
 }; |
 token allowed_char_for_token {
-	YPRINTF("token: Matched rule 2.\n");
+//	YPRINTF("token: Matched rule 2.\n");
 	memcpy($$, $1, strlen($1));
 	$$[strlen($1)] = $2;
 	$$[strlen($1) + 1] = 0;
@@ -178,11 +178,11 @@ t_slash {
  * 	   also contains spaces.
  */
 text: allowed_char_for_text {
-	YPRINTF("text: Matched rule 1.\n");
+//	YPRINTF("text: Matched rule 1.\n");
 	snprintf($$, 8192, "%c", $1);
 }; |
 text ows allowed_char_for_text {
-	YPRINTF("text: Matched rule 2.\n");
+//	YPRINTF("text: Matched rule 2.\n");
 	memcpy($$, $1, strlen($1));
 	memcpy($$ + strlen($1), $2, strlen($2));
 	$$[strlen($1) + strlen($2)] = $3;
@@ -194,15 +194,15 @@ text ows allowed_char_for_text {
  * Rule 5: Optional white spaces
  */
 ows: {
-	YPRINTF("OWS: Matched rule 1\n");
+//	YPRINTF("OWS: Matched rule 1\n");
 	$$[0]=0;
 }; |
 t_sp {
-	YPRINTF("OWS: Matched rule 2\n");
+//	YPRINTF("OWS: Matched rule 2\n");
 	snprintf($$, 8192, "%c", $1);
 }; |
 t_ws {
-	YPRINTF("OWS: Matched rule 3\n");
+//	YPRINTF("OWS: Matched rule 3\n");
 	snprintf($$, 8192, "%s", $1);
 };
 
