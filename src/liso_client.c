@@ -58,6 +58,7 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Connect");
         return EXIT_FAILURE;
     }
+	printf("connected\n");
         
     char msg[BUF_SIZE]; 
 	freopen(argv[3],"r",stdin);
