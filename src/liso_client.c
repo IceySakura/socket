@@ -21,7 +21,7 @@
 #include <netinet/ip.h>
 
 #define ECHO_PORT 9999
-#define BUF_SIZE 8192
+#define BUF_SIZE 163840
 
 int main(int argc, char* argv[])
 {
@@ -72,11 +72,12 @@ int main(int argc, char* argv[])
     int bytes_received;
     fprintf(stdout, "Sending %s", msg);
     send(sock, msg , strlen(msg), 0);
-    if((bytes_received = recv(sock, buf, BUF_SIZE, 0)) > 1)
+    while((bytes_received = recv(sock, buf, BUF_SIZE, 0)) > 1)
     {
-        buf[bytes_received] = '\0';
-        fprintf(stdout, "Received %s", buf);
-    }        
+//      buf[bytes_received] = '\0';
+		printf("bytes_received = %d\n", bytes_received);
+        printf("Received:\n%s\n", buf);
+    }
 
     freeaddrinfo(servinfo);
     close(sock);    
