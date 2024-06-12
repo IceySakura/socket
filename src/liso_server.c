@@ -60,6 +60,13 @@ int main(int argc, char* argv[])
     addr.sin_port = htons(ECHO_PORT);
     addr.sin_addr.s_addr = INADDR_ANY;
 
+	int optval = 1;
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+		fprintf(stderr, "Error setting SO_REUSEADDR option\n");
+		close_socket(sock);
+		return 1;
+	}
+
     /* servers bind sockets to ports---notify the OS they accept connections */
     if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)))
     {
@@ -68,7 +75,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    if (listen(sock, 5))
+    if (listen(sock, 100))
     {
         close_socket(sock);
         fprintf(stderr, "Error listening on socket.\n");
@@ -80,11 +87,13 @@ int main(int argc, char* argv[])
 	FD_SET(sock, &allfds);
 	int clients[FD_SETSIZE], client_cnt = 0;
 
+	int fail_cnt = 0;
+	int connected = 0;
     while (1)
     {
 		struct timeval timeout;
-		timeout.tv_sec = 1;
-		timeout.tv_usec = 0;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 100000;
 
 		fds = allfds;
 		int ready_num = select(FD_SETSIZE, &fds, NULL, NULL, &timeout);
@@ -92,10 +101,14 @@ int main(int argc, char* argv[])
 
 		if(ready_num == 0)
 		{
+			if(++fail_cnt == 5 && connected)break;
 			continue;
 		}
-		else if(FD_ISSET(sock, &fds))
+		
+		fail_cnt = 0;
+		if(FD_ISSET(sock, &fds))
 		{
+			connected = 1;
 			cli_size = sizeof(cli_addr);
 			if ((client_sock = accept(sock, (struct sockaddr *) &cli_addr, &cli_size)) == -1)
 			{
@@ -118,6 +131,13 @@ int main(int argc, char* argv[])
 
 					memset(tot_recv_buf, 0, BUF_SIZE);
 					readret = recv(client_sock, tot_recv_buf, BUF_SIZE, 0);
+
+					if(readret == 0)
+					{
+						printf("client %d is off\n", client_sock);
+						FD_CLR(client_sock, &allfds);
+						continue;
+					}
 
 					int lst = 0;
 
@@ -196,7 +216,7 @@ int main(int argc, char* argv[])
 										"Content-Length: %ld\r\n"
 										"Content-Type: text/html\r\n"
 										"Last-modified: %s\r\n"
-										"Connection: closed\r\n\r\n",
+										"Connection: keep-alive\r\n\r\n",
 										date_now, (long)file_stat->st_size, date_modified);
 								
 								if (strcmp(req->http_method, "GET") == 0)
@@ -231,7 +251,7 @@ int main(int argc, char* argv[])
 							sprintf(send_buf, "HTTP/1.1 501 Not Implemented\r\n\r\n");
 						}
 
-//						printf("send_buf:\n%s\n", send_buf);
+						printf("send_buf:\n%s\n", send_buf);
 						int sendret;
 						if ((sendret=send(client_sock, send_buf, strlen(send_buf), 0)) != strlen(send_buf))
 						{
@@ -242,14 +262,14 @@ int main(int argc, char* argv[])
 						}
 //						printf("sendret=%d\n",sendret);
 
-//						break;
 					}
 				}
 			}
 		}
-//		break;
     }
 
+	for(int i = 0; i < client_cnt; ++i)
+		close_socket(clients[i]);
     close_socket(sock);
 
     return EXIT_SUCCESS;

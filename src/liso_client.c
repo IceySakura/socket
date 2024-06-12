@@ -59,26 +59,30 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 	printf("connected\n");
-        
-    char msg[BUF_SIZE]; 
-	freopen(argv[3],"r",stdin);
-	
-	int cnt=0;
-	char c;
-	while((c=getchar())!=EOF)
-	{
-		msg[cnt++]=c;
-	}
     
-    int bytes_received;
-    fprintf(stdout, "Sending %s", msg);
-    send(sock, msg , strlen(msg), 0);
-    while((bytes_received = recv(sock, buf, BUF_SIZE, 0)) > 1)
-    {
-//      buf[bytes_received] = '\0';
-		printf("bytes_received = %d\n", bytes_received);
-        printf("Received:\n%s\n", buf);
-    }
+	int T=10;
+	while(T--)
+	{
+		char msg[BUF_SIZE]; 
+		freopen(argv[3],"r",stdin);
+		
+		int cnt=0;
+		char c;
+		while((c=getchar())!=EOF)
+		{
+			msg[cnt++]=c;
+		}
+		
+		int bytes_received;
+		fprintf(stdout, "Sending %s", msg);
+		send(sock, msg , strlen(msg), 0);
+		if((bytes_received = recv(sock, buf, BUF_SIZE, 0)) > 1)
+		{
+	//      buf[bytes_received] = '\0';
+			printf("bytes_received = %d\n", bytes_received);
+			printf("Received:\n%s\n", buf);
+		}
+	}
 
     freeaddrinfo(servinfo);
     close(sock);    
